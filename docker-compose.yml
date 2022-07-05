@@ -1,0 +1,7 @@
+version: "3.3"
+services:
+  snake:
+    restart: always
+    image: gummelhummel/2048
+    ports:
+      - "8057:80"
