@@ -1,0 +1,58 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: two-thousand-forty-eight-ingress
+  namespace: games
+spec:
+  rules:
+    - host: 2048.if-then-els.de
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: two-thousand-forty-eight
+                port:
+                  name: web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: two-thousand-forty-eight
+  namespace: games
+spec:
+  ports:
+    - name: web
+      port: 80
+      targetPort: web
+
+  selector:
+    app: two-thousand-forty-eight
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: two-thousand-forty-eight
+  namespace: games
+  labels:
+    app: two-thousand-forty-eight
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: two-thousand-forty-eight
+  template:
+    metadata:
+      labels:
+        app: two-thousand-forty-eight
+    spec:
+      containers:
+        - name: two-thousand-forty-eight
+          image: gummelhummel/2048
+          ports:
+            - name: web
+              containerPort: 80
+      imagePullSecrets:
+        - name: dockerhub
