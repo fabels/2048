@@ -134,10 +134,6 @@ export class AppComponent implements OnInit {
     return Math.random() > .8 ? 4 : 2;
   }
 
-  private colToRow(gamefield: Stone[][]): Stone[][] {
-    return gamefield[0].map((_, index) => gamefield.map(row => row[index]));
-  }
-
   private fillRow(row: Stone[], animation: Animation): Stone[] {
     const nothingToFill = row.length === this.cols;
     if (nothingToFill) {
@@ -150,11 +146,12 @@ export class AppComponent implements OnInit {
   }
 
   private top = (gamefield: Stone[][]): Stone[][] => {
-    return this.colToRow(this.colToRow(gamefield)
+    return gamefield.rotate()
       .map(row => row.filter(stone => !!stone.value))
       .map(row => row.map(this.merge))
       .map(row => row.filter(stone => !!stone.value))
-      .map(row => this.fillRow(row, Animation.bottom)));
+      .map(row => this.fillRow(row, Animation.bottom))
+      .rotate();
   };
 
   private right = (gamefield: Stone[][]): Stone[][] => {
@@ -167,13 +164,14 @@ export class AppComponent implements OnInit {
   };
 
   private bottom = (gamefield: Stone[][]): Stone[][] => {
-    return this.colToRow(this.colToRow(gamefield)
+    return gamefield.rotate()
       .map(row => row.reverse())
       .map(row => row.filter(stone => !!stone.value))
       .map(row => row.map(this.merge))
       .map(row => row.filter(stone => !!stone.value))
       .map(row => this.fillRow(row, Animation.top))
-      .map(row => row.reverse()));
+      .map(row => row.reverse())
+      .rotate();
   };
 
   private left = (gamefield: Stone[][]): Stone[][] => {
@@ -220,3 +218,13 @@ interface Stone {
 enum Animation {
   top, right, bottom, left, spawning, nothing, merged
 }
+
+declare global {
+  interface Array<T> {
+    rotate(): T[];
+  }
+}
+
+Array.prototype.rotate = function <T>(): T[] {
+  return this[0].map((_: any, index: number) => this.map(row => row[index]));
+};
